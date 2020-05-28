@@ -4,6 +4,7 @@ require_once '../Database/Database.php';
 require_once '../Database/Models/Answer.php';
 require_once '../Database/Models/Question.php';
 require_once '../Database/Models/User.php';
+require_once '../Database/Models/Profile.php';
 require_once '../Database/Errors/InvalidLoginException.php';
 require_once '../Database/Errors/InvalidRegistrationException.php';
 require_once '../Database/Errors/OperationFailedException.php';
