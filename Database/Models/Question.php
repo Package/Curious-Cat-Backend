@@ -67,7 +67,7 @@ class Question
     public static function create(string $label, int $targetUser, array $user, int $nameHidden)
     {
         if (!$label || strlen($label) == 0 || !$targetUser || !$user['id']) {
-            throw new OperationFailedException("Please POST all required fields.");
+            throw new OperationFailedException("An error occurred. Please login and try again.");
         }
 
         $db = Database::connect();

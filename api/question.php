@@ -17,7 +17,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
         } catch (OperationFailedException $e) {
             exitWithMessage($e->getMessage());
         }
-        echo 'Post request';
         break;
     case 'DELETE':
         try {

@@ -7,6 +7,7 @@ require_once '../Database/Models/User.php';
 require_once '../Database/Errors/InvalidLoginException.php';
 require_once '../Database/Errors/InvalidRegistrationException.php';
 require_once '../Database/Errors/OperationFailedException.php';
+require_once '../Database/Errors/UnauthorizedException.php';
 
 header('Content-type:application/json;charset=utf-8');
 
@@ -19,6 +20,7 @@ function exitWithMessage(string $message, int $statusCode = 500) : void {
 function validateAccessToken() {
     $headers = apache_request_headers();
     $authHeader = $headers['Authorization'] ?? false;
+
     if (!$authHeader || !strlen($authHeader)) {
         exitWithMessage("Unauthorized. Please login.", 401);
     }
