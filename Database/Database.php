@@ -26,7 +26,7 @@ class Database
 
             return self::$_connection;
         } catch (Exception $e) {
-            exit("Error with connecting to database: {$e->getMessage()}");
+            exitWithMessage("Error with connecting to database: {$e->getMessage()}", 500);
         }
     }
 }

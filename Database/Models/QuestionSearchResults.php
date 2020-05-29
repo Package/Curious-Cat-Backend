@@ -39,8 +39,8 @@ class QuestionSearchResults extends SearchResults
                     ON q.id = a.question_id 
             
             WHERE 
-                  q.label LIKE :query OR 
-                  a.label LIKE :query
+                  LOWER(q.label) LIKE :query OR 
+                  LOWER(a.label) LIKE :query
                         
             GROUP BY
                 q.id, 
@@ -57,7 +57,7 @@ class QuestionSearchResults extends SearchResults
             LIMIT :limit
             ");
 
-        $statement->execute(['%' . $query . '%', self::SEARCH_LIMIT]);
+        $statement->execute(['%' . strtolower($query) . '%', self::SEARCH_LIMIT]);
         return $statement->fetchAll(PDO::FETCH_OBJ);
     }
 }

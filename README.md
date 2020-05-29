@@ -1,8 +1,10 @@
 # Curious Cat Clone - Backend API
 
-## Questions
+All routes (other than Authentication) **require** an `Authorization Header` in the format: `Authorization: Bearer ACCESS_TOKEN`
 
-All Question routes require an `Authorization Header` in the format: `Authorization: Bearer ACCESS_TOKEN`
+Failure to provide this will result in a `401 Unauthorized` response.
+
+## Questions
 
 ### All Questions
 GET `/api/question.php`
@@ -27,8 +29,6 @@ Example Request Body
 ```
 
 ## Answers
-
-All Answer routes require an `Authorization Header` in the format: `Authorization: Bearer ACCESS_TOKEN`
 
 ### Answers to Question
 GET `/api/answer.php?question=2`
@@ -125,6 +125,36 @@ Example response:
 }
 ```
 
+### Search
+
+GET `/api/search.php?query=search-here`
+
+Returns the **top 50 most recent** Users and Questions/Answers that contain the query.
+
+```json
+{
+    "users": [
+        {
+            "id": 5,
+            "username": "john@doe.com",
+            "created_at": "2020-05-28"
+        }
+    ],
+    "questions": [
+        {
+            "question_id": 16,
+            "question_created_at": "2020-05-29",
+            "question_label": "Hey John how are you?",
+            "question_name_hidden": 0,
+            "from_userid": 7,
+            "from_username": "Another User",
+            "to_userid": 6,
+            "to_username": "Peter Smith",
+            "num_answers": 0
+        }
+    ]
+}
+```
 
 Coming up...
 
