@@ -15,6 +15,10 @@ require_once '../Database/Errors/UnauthorizedException.php';
 
 header('Content-type:application/json;charset=utf-8');
 
+use \Symfony\Component\Dotenv\Dotenv;
+$dotEnv = new Dotenv();
+$dotEnv->load('../.env');
+
 function exitWithMessage(string $message, int $statusCode = 500) : void {
     http_response_code($statusCode);
     echo json_encode(['message' => $message]);

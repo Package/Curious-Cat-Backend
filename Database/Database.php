@@ -20,12 +20,7 @@ class Database
         }
 
         try {
-            $config = parse_ini_file('../config/development.ini');
-            if (!$config) {
-                throw new Exception("Unable to read config file.");
-            }
-
-            $connectionString = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']};user={$config['user']};password={$config['password']}";
+            $connectionString = "pgsql:host={$_ENV['host']};port={$_ENV['port']};dbname={$_ENV['database']};user={$_ENV['user']};password={$_ENV['password']}";
             self::$_connection = new PDO($connectionString);
             self::$_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 

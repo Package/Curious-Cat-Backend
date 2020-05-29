@@ -3,6 +3,6 @@
         "firebase/php-jwt": "^5.2",
       "ext-json": "*",
       "ext-pdo": "*",
-      "ext-apache": "*"
+        "symfony/dotenv": "^5.0"
     }
 }
