@@ -76,7 +76,7 @@ Example Request Body
 }
 ```
 
-### Profile
+## Profile
 GET `/api/profile.php?id=6`
 
 Returns all data related to the users profile. 
@@ -125,9 +125,9 @@ Example response:
 }
 ```
 
-### Search
+## Search
 
-GET `/api/search.php?query=search-here`
+GET `/api/search.php?query=searchTerm`
 
 Returns the **top 50 most recent** Users and Questions/Answers that contain the query.
 
@@ -156,8 +156,34 @@ Returns the **top 50 most recent** Users and Questions/Answers that contain the 
 }
 ```
 
+## Following
+
+### Follow User
+POST `/api/following.php?id=7`
+
+### Unfollow User
+DELETE `/api/following.php?id=7`
+
+### Users Following
+GET `/api/following.php?id=7`
+
+Returns all the users that user `7` is following.
+
+### Users Followed
+GET `/api/following.php?id=7&type=followers`
+
+Returns all followers of user `7`. 
+
+#### Note
+If `id` is not provided, it is defaulted to the current user as identified by their authentication token.
+
+If `type` is not provided, it is defaulted to 'following'.
+
+That means that to return all the users the current user is following, this could be shortened to: 
+
+GET `/api/following.php` 
+
+
 Coming up...
 
 * Notification API
-* Follower API
-* Search API
