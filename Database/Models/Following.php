@@ -11,20 +11,24 @@ class Following
      * Follows a user.
      *
      * @param int $followedUser
-     * @param int $followingUser
+     * @param array $followingUser
      * @throws OperationFailedException
      */
-    public static function follow(int $followedUser, int $followingUser)
+    public static function follow(int $followedUser, array $followingUser)
     {
         $db = Database::connect();
 
-        if ($followingUser === $followedUser) {
+        if ($followingUser["id"] === $followedUser) {
             throw new OperationFailedException("You cannot follow yourself.");
         }
 
-        if (!self::isFollowing($followedUser, $followingUser)) {
+        if (!self::isFollowing($followedUser, $followingUser["id"])) {
             $statement = $db->prepare("INSERT INTO followers(followed_user, following_user, created_at) VALUES( :followed_user, :following_user, NOW())");
-            $statement->execute([$followedUser, $followingUser]);
+            $statement->execute([$followedUser, $followingUser["id"]]);
+
+            if ($statement->rowCount() > 0) {
+                Notification::create($followedUser, $followingUser["username"],Notification::NOTIFICATION_FOLLOWED_YOU);
+            }
         }
     }
 
@@ -32,20 +36,20 @@ class Following
      * Un follows a user.
      *
      * @param int $followedUser
-     * @param int $followingUser
+     * @param array $followingUser
      * @throws OperationFailedException
      */
-    public static function unfollow(int $followedUser, int $followingUser)
+    public static function unfollow(int $followedUser, array $followingUser)
     {
         $db = Database::connect();
 
-        if ($followingUser === $followedUser) {
+        if ($followingUser["id"] === $followedUser) {
             throw new OperationFailedException("You cannot follow yourself.");
         }
 
-        if (self::isFollowing($followedUser, $followingUser)) {
+        if (self::isFollowing($followedUser, $followingUser["id"])) {
             $statement = $db->prepare("DELETE FROM followers WHERE followed_user = :followed_user AND following_user = :following_user");
-            $statement->execute([$followedUser, $followingUser]);
+            $statement->execute([$followedUser, $followingUser["id"]]);
         }
     }
 

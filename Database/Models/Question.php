@@ -80,6 +80,11 @@ class Question
         $statement->bindParam(":name_hidden", $nameHidden, PDO::PARAM_INT);
         $statement->execute();
 
-        return true;
+        $successfullyCreated = $statement->rowCount() > 0;
+        if ($successfullyCreated) {
+            Notification::create($targetUser, $user["username"],Notification::NOTIFICATION_ASKED_QUESTION);
+        }
+
+        return $successfullyCreated;
     }
 }

@@ -42,10 +42,9 @@ class Profile
      * Gets the profile timeline info for a user
      *
      * @param int $profileId
-     * @param array $currentUser
      * @return array
      */
-    public static function timeline(int $profileId, array $currentUser)
+    public static function timeline(int $profileId)
     {
         $db = Database::connect();
 
@@ -97,18 +96,36 @@ class Profile
     {
         $db = Database::connect();
 
-        // Todo: update when followers is a thing
         $statement = $db->prepare("
             SELECT 
-                   0 AS follower_count,
-                   0 AS following_count,
-                   false AS is_following,
-                   CASE WHEN u.id = :current_user THEN TRUE ELSE FALSE END AS own_profile
+                   u2.follower_count AS follower_count,
+                   u2.following_count AS following_count,
+                   CASE WHEN f.followed_user = u2.id AND f.following_user = :current_user THEN 1 ELSE 0 END AS is_following,
+                   CASE WHEN u2.id = :current_user THEN TRUE ELSE FALSE END AS own_profile
             FROM
-                users u
+                (
+                    SELECT 
+                        u.id,
+                        SUM( CASE WHEN f.followed_user = u.id THEN 1 ELSE 0 END ) AS follower_count,
+                        SUM( CASE WHEN f.following_user = u.id THEN 1 ELSE 0 END ) AS following_count
+                    
+                    FROM 
+                         users u 
+                     
+                    LEFT JOIN followers f 
+                        ON f.following_user = u.id
+                        OR f.followed_user = u.id
+                    
+                    WHERE
+                        u.id = :profile_id
+                    
+                    GROUP BY 
+                        u.id
+                ) u2
             
-            WHERE
-                u.id = :profile_id
+                LEFT OUTER JOIN followers f 
+                    ON f.following_user = u2.id
+                    OR f.followed_user = u2.id
         ");
 
         $statement->bindParam(":profile_id",$profileId, PDO::PARAM_INT);

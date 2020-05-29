@@ -55,7 +55,13 @@ class Answer
         $statement->bindParam(":user_id", $user['id'], PDO::PARAM_INT);
         $statement->execute();
 
-        return true;
+        $successfullyAnswered = $statement->rowCount() > 0;
+        if ($successfullyAnswered) {
+            // Send a notification that the question has been answered
+            Notification::create($question[0]->from_user, $user["username"], Notification::NOTIFICATION_ANSWERED_QUESTION);
+        }
+
+        return $successfullyAnswered;
     }
 
     /**

@@ -13,11 +13,11 @@ if (!$id) {
 try {
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'POST':
-            Following::follow($id, $user['id']);
+            Following::follow($id, $user);
             exitWithMessage("User Followed.", 201);
             break;
         case 'DELETE':
-            Following::unfollow($id, $user['id']);
+            Following::unfollow($id, $user);
             exitWithMessage("User Unfollowed.", 200);
             break;
         default:
