@@ -3,7 +3,6 @@ require_once './init.php';
 
 // Get from POSTED body.
 $body = json_decode(file_get_contents('php://input'), true);
-
 $username = $body['username'] ?? false;
 $emailAddress = $body['email_address'] ?? false;
 $password = $body['password'] ?? false;
@@ -17,5 +16,5 @@ try {
     $registerStatus = User::register($username, $emailAddress, $password, $confirmPassword);
     echo $registerStatus;
 } catch (InvalidLoginException|InvalidRegistrationException $e) {
-    exitWithMessage($e->getMessage());
+    exitWithMessage($e->getMessage(), 500);
 }

@@ -7,7 +7,8 @@
   },
   "autoload": {
     "classmap": [
-      "Database/Errors",
+      "Core/Errors",
+      "Core/",
       "Database/Models",
       "Database/"
     ]

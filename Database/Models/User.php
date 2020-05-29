@@ -8,8 +8,7 @@ class User
     public $username;
     public $email_address;
     public $created_at;
-
-    private const JWT_SECRET = 'Sup3r$3k4e5K4y';
+    public $password;
 
     /**
      * @param string $username
@@ -67,16 +66,17 @@ class User
 
         $statement = $db->prepare("SELECT * FROM users WHERE username = :user_or_email OR email_address = :user_or_email LIMIT 1");
         $statement->bindParam(":user_or_email", $usernameOrEmail, PDO::PARAM_STR);
+        $statement->setFetchMode(PDO::FETCH_CLASS, User::class);
         $statement->execute();
 
-        $maybeUser = $statement->fetch(PDO::FETCH_ASSOC);
+        $maybeUser = $statement->fetch();
         if (!$maybeUser) {
             // No user found with provided username/email
             throw new InvalidLoginException("Username or password is incorrect.");
         }
 
         // Compare password
-        if (!password_verify($plainPassword, $maybeUser['password'])) {
+        if (!password_verify($plainPassword, $maybeUser->password)) {
             throw new InvalidLoginException("Username or password is incorrect.");
         }
 
@@ -88,19 +88,19 @@ class User
      * Generates a JSON Web Token to serve as an authentication for future requests
      * by this user.
      *
-     * @param array $userDetails
+     * @param User $user
      * @return false|string
      */
-    private static function generateWebToken(array $userDetails)
+    private static function generateWebToken(User $user)
     {
         $data = [
-            'id' => $userDetails['id'],
-            'username' => $userDetails['username'],
-            'email_address' => $userDetails['email_address']
+            'id' => $user->id,
+            'username' => $user->username,
+            'email_address' => $user->email_address
         ];
 
         $jwt = JWT::encode(
-            $data, self::JWT_SECRET, 'HS512'
+            $data, $_ENV['jwt_secret'], 'HS512'
         );
 
         return json_encode(['message' => 'Login Successful.', 'authorization_token' => $jwt]);
@@ -110,15 +110,20 @@ class User
      * Validates the access token provided.
      *
      * @param string $accessToken
-     * @return array
+     * @return array|bool
      */
     public static function validateToken(string $accessToken)
     {
-        $payload = JWT::decode($accessToken, self::JWT_SECRET, ['HS512']);
-        return [
-            'id' => $payload->id,
-            'username' => $payload->username,
-            'email_address' => $payload->email_address
-        ];
+        try {
+            $payload = JWT::decode($accessToken, $_ENV['jwt_secret'], ['HS512']);
+
+            return [
+                'id' => $payload->id,
+                'username' => $payload->username,
+                'email_address' => $payload->email_address
+            ];
+        } catch (Exception $e) {}
+
+        return false;
     }
 }

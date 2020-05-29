@@ -1,9 +1,10 @@
 <?php
 require_once './init.php';
 
-$user = validateAccessToken();
-$query = $_GET['query'] ?? false;
+$auth = new Authentication;
+$user = $auth->authenticationNeeded()->getCurrentUser();
 
+$query = $_GET['query'] ?? false;
 if (!$query || strlen($query) == 0) {
     exitWithMessage('No query provided.', 400);
 }
