@@ -1,8 +1,15 @@
 {
-    "require": {
-        "firebase/php-jwt": "^5.2",
-      "ext-json": "*",
-      "ext-pdo": "*",
-        "symfony/dotenv": "^5.0"
-    }
+  "require": {
+    "firebase/php-jwt": "^5.2",
+    "ext-json": "*",
+    "ext-pdo": "*",
+    "symfony/dotenv": "^5.0"
+  },
+  "autoload": {
+    "classmap": [
+      "Database/Errors",
+      "Database/Models",
+      "Database/"
+    ]
+  }
 }

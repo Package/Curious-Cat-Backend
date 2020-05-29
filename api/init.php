@@ -1,19 +1,7 @@
 <?php
 require_once '../vendor/autoload.php';
-require_once '../Database/Database.php';
-require_once '../Database/Models/Answer.php';
-require_once '../Database/Models/Question.php';
-require_once '../Database/Models/User.php';
-require_once '../Database/Models/Profile.php';
-require_once '../Database/Models/SearchResults.php';
-require_once '../Database/Models/QuestionSearchResults.php';
-require_once '../Database/Models/UserSearchResults.php';
-require_once '../Database/Errors/InvalidLoginException.php';
-require_once '../Database/Errors/InvalidRegistrationException.php';
-require_once '../Database/Errors/OperationFailedException.php';
-require_once '../Database/Errors/UnauthorizedException.php';
 
-header('Content-type:application/json;charset=utf-8');
+header('Content-Type: application/json; charset=utf-8');
 
 use \Symfony\Component\Dotenv\Dotenv;
 $dotEnv = new Dotenv();
