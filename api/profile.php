@@ -14,5 +14,6 @@ $profileService = new ProfileService;
 $profileData = new stdClass;
 $profileData->info = $profileService->info($profileID, $user);
 $profileData->stats = $profileService->stats($profileID);
-$profileData->timeline = $profileService->timeline($profileID);
+$profileData->questions = $profileService->questions($profileID);
+$profileData->answers = $profileService->answers($profileID);
 echo json_encode($profileData);

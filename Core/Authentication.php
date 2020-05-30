@@ -49,8 +49,7 @@ final class Authentication
      */
     private function parseTokenHeader()
     {
-        $headers = apache_request_headers();
-        $authHeader = $headers['Authorization'] ?? false;
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? false;
 
         if (!$authHeader || !strlen($authHeader)) {
             return false;

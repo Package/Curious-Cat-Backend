@@ -183,7 +183,14 @@ That means that to return all the users the current user is following, this coul
 
 GET `/api/following.php` 
 
+## Notifications
 
-Coming up...
+### Get Unread Notifications
+GET `/api/notifications.php`
 
-* Notification API
+Returns all unread notifications for the user.
+
+### Mark Read
+PUT `/api/notification.php`
+
+Marks all unread notifications as read for the user. 

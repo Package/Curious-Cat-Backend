@@ -36,12 +36,12 @@ class ProfileService extends BaseService
     }
 
     /**
-     * Gets the profile timeline info for a user
+     * Returns the latest 50 questions this user has asked.
      *
      * @param int $profileId
      * @return array
      */
-    public function timeline(int $profileId)
+    public function questions(int $profileId)
     {
         $statement = $this->db->prepare("
             SELECT 
@@ -62,13 +62,62 @@ class ProfileService extends BaseService
                      
                 LEFT OUTER JOIN answers a
                     ON q.id = a.question_id
+                     
                 INNER JOIN users tu
                     ON tu.id = q.target_user
+                     
                 INNER JOIN users fu
                     ON fu.id = q.from_user
             
             WHERE
-                q.target_user = :profile_id OR q.from_user = :profile_id
+                q.from_user = :profile_id AND q.name_hidden = 0
+            
+            ORDER BY 
+                q.created_at DESC
+        ");
+
+        $statement->bindParam(":profile_id",$profileId, PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll(PDO::FETCH_CLASS);
+    }
+
+    /**
+     * Returns the latest 50 answers this user has provided.
+     *
+     * @param int $profileId
+     * @return array
+     */
+    public function answers(int $profileId)
+    {
+        $statement = $this->db->prepare("
+            SELECT 
+                   q.id AS question_id,
+                   q.label AS question_label,
+                   q.created_at AS question_timestamp,
+                   q.name_hidden AS question_name_hidden,
+                   a.id AS answer_id,
+                   a.label AS answer_label,
+                   a.created_at AS answer_timestamp,
+                   tu.id AS target_user,
+                   tu.username AS target_user_name,
+                   CASE WHEN q.name_hidden = 1 THEN NULL ELSE fu.id END AS from_user,
+                   CASE WHEN q.name_hidden = 1 THEN NULL ELSE fu.username END AS from_user_name
+            
+            FROM 
+                 questions q
+                     
+                INNER JOIN answers a
+                    ON q.id = a.question_id
+                     
+                INNER JOIN users tu
+                    ON tu.id = q.target_user
+                     
+                INNER JOIN users fu
+                    ON fu.id = q.from_user
+            
+            WHERE
+                q.target_user = :profile_id
             
             ORDER BY 
                 q.created_at DESC
@@ -93,12 +142,17 @@ class ProfileService extends BaseService
             SELECT 
                    u2.follower_count AS follower_count,
                    u2.following_count AS following_count,
-                   CASE WHEN f.followed_user = u2.id AND f.following_user = :current_user THEN 1 ELSE 0 END AS is_following,
+                   u2.id AS user_id,
+                   u2.username AS username,
+                   u2.created_at AS created_at,
+                   CASE WHEN f.created_at IS NOT NULL THEN 1 ELSE 0 END AS is_following,
                    CASE WHEN u2.id = :current_user THEN TRUE ELSE FALSE END AS own_profile
             FROM
                 (
                     SELECT 
-                        u.id,
+                        u.id AS id,
+                        u.username AS username,
+                        u.created_at AS created_at,
                         SUM( CASE WHEN f.followed_user = u.id THEN 1 ELSE 0 END ) AS follower_count,
                         SUM( CASE WHEN f.following_user = u.id THEN 1 ELSE 0 END ) AS following_count
                     
@@ -113,12 +167,12 @@ class ProfileService extends BaseService
                         u.id = :profile_id
                     
                     GROUP BY 
-                        u.id
+                        u.id, u.username, u.created_at
                 ) u2
             
                 LEFT OUTER JOIN followers f 
-                    ON f.following_user = u2.id
-                    OR f.followed_user = u2.id
+                    ON f.following_user = :current_user
+                    AND f.followed_user = u2.id
         ");
 
         $statement->bindParam(":profile_id",$profileId, PDO::PARAM_INT);
