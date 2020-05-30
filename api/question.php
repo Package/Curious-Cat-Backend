@@ -11,19 +11,20 @@ $nameHidden = $body['name_hidden'] ?? false;
 $auth = new Authentication;
 $user = $auth->authenticationNeeded()->getCurrentUser();
 
+$questionService = new QuestionService;
+
 try {
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'POST':
-            Question::create($label, $targetUser, $user, $nameHidden);
+            $questionService->create($label, $targetUser, $user, $nameHidden);
             exitWithMessage('Question Created.', 201);
             break;
         case 'DELETE':
-            Question::delete($id, $user);
+            $questionService->delete($id, $user);
             exitWithMessage('Question Deleted.', 200);
             break;
         default:
-            $questions = Question::get($id);
-            echo json_encode($questions);
+            echo json_encode($questionService->get($id));
     }
 } catch (Exception $e) {
     exitWithMessage($e->getMessage(), 500);

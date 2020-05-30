@@ -10,18 +10,20 @@ if (!$id) {
     exitWithMessage("No ID provided in request.", 401);
 }
 
+$followService = new FollowService;
+
 try {
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'POST':
-            Following::follow($id, $user);
+            $followService->follow($id, $user);
             exitWithMessage("User Followed.", 201);
             break;
         case 'DELETE':
-            Following::unfollow($id, $user);
+            $followService->unfollow($id, $user);
             exitWithMessage("User Unfollowed.", 200);
             break;
         default:
-            echo json_encode(Following::get($id, $type));
+            echo json_encode($followService->get($id, $type));
     }
 } catch (Exception $e) {
     exitWithMessage($e->getMessage(), 500);

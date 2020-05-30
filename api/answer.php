@@ -11,18 +11,20 @@ $postQuestion = $body['question_id'] ?? false;
 $auth = new Authentication;
 $user = $auth->authenticationNeeded()->getCurrentUser();
 
+$answerService = new AnswerService;
+
 try {
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'POST':
-            Answer::create($postQuestion, $user, $label);
+            $answerService->create($postQuestion, $user, $label);
             exitWithMessage("Answer Created.", 201);
             break;
         case 'DELETE':
-            Answer::delete($answerID, $user);
+            $answerService->delete($answerID, $user);
             exitWithMessage("Answer Deleted.", 200);
             break;
         default:
-            $answers = Answer::forQuestion($getQuestion);
+            $answers = $answerService->forQuestion($getQuestion);
             echo json_encode($answers);
     }
 } catch (Exception $e) {

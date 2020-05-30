@@ -8,9 +8,9 @@ if (!$userOrEmail || !$password) {
     exitWithMessage("Provide userOrEmail and password in POST request");
 }
 
+$userService = new UserService;
 try {
-    $loginStatus = User::login($userOrEmail, $password);
-    echo $loginStatus;
+    echo $userService->login($userOrEmail, $password);
 } catch (InvalidLoginException $e) {
     exitWithMessage($e->getMessage(), 500);
 }

@@ -9,12 +9,12 @@ $password = $body['password'] ?? false;
 $confirmPassword = $body['confirm_password'] ?? false;
 
 if (!$username || !$emailAddress || !$password || !$confirmPassword) {
-    exitWithMessage("Provide username, email_address, password and confirm_password in POST request");
+    exitWithMessage("Provide username, email_address, password and confirm_password in POST request.");
 }
 
+$userService = new UserService;
 try {
-    $registerStatus = User::register($username, $emailAddress, $password, $confirmPassword);
-    echo $registerStatus;
+    echo $userService->register($username, $emailAddress, $password, $confirmPassword);
 } catch (InvalidLoginException|InvalidRegistrationException $e) {
-    exitWithMessage($e->getMessage(), 500);
+    exitWithMessage($e->getMessage(), 400);
 }

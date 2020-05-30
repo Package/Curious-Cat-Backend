@@ -1,5 +1,6 @@
 <?php
 
+use Firebase\JWT\JWT;
 
 final class Authentication
 {
@@ -29,7 +30,7 @@ final class Authentication
             exitWithMessage("Unauthorized: You need to login to access this page.", 401);
         }
 
-        $maybeUser = User::validateToken($maybeToken);
+        $maybeUser = self::validateToken($maybeToken);
         if ($this->requireLogin && !$maybeUser) {
             exitWithMessage("Unauthorized: You do not have permission to access this.", 401);
         }
@@ -63,5 +64,48 @@ final class Authentication
         $accessToken = $tokenExplode[1];
 
         return trim($accessToken);
+    }
+
+    /**
+     * Generates a JSON Web Token to serve as an authentication for future requests
+     * by this user.
+     *
+     * @param User $user
+     * @return false|string
+     */
+    public static function generateWebToken(User $user)
+    {
+        $data = [
+            'id' => $user->id,
+            'username' => $user->username,
+            'email_address' => $user->email_address
+        ];
+
+        $jwt = JWT::encode(
+            $data, $_ENV['jwt_secret'], 'HS512'
+        );
+
+        return json_encode(['message' => 'Login Successful.', 'authorization_token' => $jwt]);
+    }
+
+    /**
+     * Validates the access token provided.
+     *
+     * @param string $accessToken
+     * @return array|bool
+     */
+    public static function validateToken(string $accessToken)
+    {
+        try {
+            $payload = JWT::decode($accessToken, $_ENV['jwt_secret'], ['HS512']);
+
+            return [
+                'id' => $payload->id,
+                'username' => $payload->username,
+                'email_address' => $payload->email_address
+            ];
+        } catch (Exception $e) {}
+
+        return false;
     }
 }

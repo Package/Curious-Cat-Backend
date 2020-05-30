@@ -1,8 +1,9 @@
 <?php
 
 
-class QuestionSearchResults extends SearchResults
+class QuestionSearchService extends SearchService
 {
+
     /**
      * Performs a search on Questions and Answers for the provided search query.
      *
@@ -11,11 +12,9 @@ class QuestionSearchResults extends SearchResults
      * @param string $query
      * @return array
      */
-    public static function search(string $query)
+    public function search(string $query)
     {
-        $db = Database::connect();
-
-        $statement = $db->prepare("
+        $statement = $this->db->prepare("
             SELECT 
                 q.id AS question_id, 
                 q.created_at AS question_created_at, 

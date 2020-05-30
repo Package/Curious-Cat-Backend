@@ -9,6 +9,7 @@
     "classmap": [
       "Core/Errors",
       "Core/",
+      "Core/Services",
       "Database/Models",
       "Database/"
     ]
