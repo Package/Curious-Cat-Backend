@@ -17,14 +17,16 @@ class QuestionSearchService extends SearchService
         $statement = $this->db->prepare("
             SELECT 
                 q.id AS question_id, 
-                q.created_at AS question_created_at, 
                 q.label AS question_label,
+                q.created_at AS question_timestamp, 
                 q.name_hidden AS question_name_hidden,
-                CASE WHEN q.name_hidden = 1 THEN NULL ELSE fu.id END AS from_userid,
-                CASE WHEN q.name_hidden = 1 THEN NULL ELSE fu.username END AS from_username,
-                tu.id AS to_userid,
-                tu.username AS to_username,
-                COUNT(a.id) AS num_answers
+                CASE WHEN q.name_hidden = 1 THEN NULL ELSE fu.id END AS from_user,
+                CASE WHEN q.name_hidden = 1 THEN NULL ELSE fu.username END AS from_user_name,
+                tu.id AS target_user,
+                tu.username AS target_user_name,
+                a.id AS answer_id,
+                a.label AS answer_label,
+                a.created_at AS answer_timestamp
             
             FROM questions q
                 
@@ -40,15 +42,6 @@ class QuestionSearchService extends SearchService
             WHERE 
                   LOWER(q.label) LIKE :query OR 
                   LOWER(a.label) LIKE :query
-                        
-            GROUP BY
-                q.id, 
-                q.created_at, 
-                q.label, 
-                fu.username,
-                fu.id,
-                tu.username,
-                tu.id
             
             ORDER BY
                   q.created_at DESC

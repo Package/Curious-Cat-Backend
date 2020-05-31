@@ -10,6 +10,7 @@ if (!$query || strlen($query) == 0) {
 }
 
 $searchResults = new stdClass;
+$searchResults->query = $query;
 
 $searchService = new QuestionSearchService;
 $searchResults->questions = $searchService->search($query);

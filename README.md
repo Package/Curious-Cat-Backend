@@ -1,5 +1,11 @@
 # Curious Cat Clone - Backend API
 
+Technology Stack
+* PHP 7.4
+* PostgreSQL Database
+* JSON Web Token (JWT) Authentication
+* Apache Server
+
 All routes (other than Authentication) **require** an `Authorization Header` in the format: `Authorization: Bearer ACCESS_TOKEN`
 
 Failure to provide this will result in a `401 Unauthorized` response.
