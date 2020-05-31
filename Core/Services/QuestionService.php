@@ -10,7 +10,23 @@ class QuestionService extends BaseService
      * @return array
      */
     public function get(int $questionNumber = 0) {
-        $statement = $this->db->prepare("SELECT * FROM questions WHERE id = :question_number OR :question_number = 0");
+        $statement = $this->db->prepare("
+            SELECT 
+                   q.id,
+                   q.created_at,
+                   q.name_hidden,
+                   q.label,
+                   q.target_user,
+                   CASE WHEN q.name_hidden = 1 THEN NULL ELSE u.username END AS from_username,
+                   CASE WHEN q.name_hidden = 1 THEN NULL ELSE u.id END AS from_user
+                    
+            FROM questions q
+            
+                INNER JOIN users u 
+                    ON u.id = q.from_user
+            
+            WHERE q.id = :question_number OR :question_number = 0
+        ");
         $statement->bindParam(":question_number", $questionNumber, PDO::PARAM_INT);
         $statement->execute();
 
@@ -71,7 +87,7 @@ class QuestionService extends BaseService
         $successfullyCreated = $statement->rowCount() > 0;
         if ($successfullyCreated) {
             $notificationService = new NotificationService;
-            $notificationService->create($targetUser, $user["username"],Notification::NOTIFICATION_ASKED_QUESTION);
+            $notificationService->create($targetUser, $user,Notification::NOTIFICATION_ASKED_QUESTION, $label, $this->db->lastInsertId());
         }
 
         return $successfullyCreated;

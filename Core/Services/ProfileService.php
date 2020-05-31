@@ -107,7 +107,7 @@ class ProfileService extends BaseService
             FROM 
                  questions q
                      
-                INNER JOIN answers a
+                LEFT OUTER JOIN answers a
                     ON q.id = a.question_id
                      
                 INNER JOIN users tu

@@ -5,23 +5,24 @@ class NotificationService extends BaseService
 {
 
     /**
-    * Creates a new notification to the provided user.
-    *
-    * @param string $triggeredBy
-    * @param int $toUser
-    * @param int $messageType
-    * @throws OperationFailedException
-    */
-    public function create(int $toUser, string $triggeredBy, int $messageType): void
+     * Creates a new notification to the provided user.
+     *
+     * @param int $toUser
+     * @param array $fromUser
+     * @param int $messageType
+     * @param string|null $context
+     * @throws OperationFailedException
+     */
+    public function create(int $toUser, array $fromUser, int $messageType, string $context = null, int $contextId = null): void
     {
-        $formattedMessage = $this->formatNotification($triggeredBy, $messageType);
+        $formattedMessage = $this->formatNotification($fromUser["username"], $messageType);
         if (!$formattedMessage) {
             throw new OperationFailedException("Could not send notification.");
         }
 
-        $statement = $this->db->prepare("INSERT INTO notifications( label, notification_read, user_id, created_at) 
-                                             VALUES(:label, 0, :user, NOW())");
-        $statement->execute([$formattedMessage, $toUser]);
+        $statement = $this->db->prepare("INSERT INTO notifications(label, notification_read, user_id, created_at, from_user, notification_type, context, context_id) 
+                                             VALUES(:label, 0, :user, NOW(), :from_user, :notification_type, :context, :context_id)");
+        $statement->execute([$formattedMessage, $toUser, $fromUser["id"], $messageType, $context, $contextId]);
     }
 
     /**
@@ -43,7 +44,18 @@ class NotificationService extends BaseService
      */
     public function get(int $userId)
     {
-        $statement = $this->db->prepare("SELECT * FROM notifications WHERE user_id = :user AND notification_read = 0 ORDER BY created_at DESC LIMIT 50");
+        $statement = $this->db->prepare("
+                SELECT n.*, 
+                       nt.type AS notification_type_string,
+                       u.username AS from_username
+                FROM notifications n
+                    INNER JOIN users u
+                        ON u.id = n.from_user
+                    INNER JOIN notification_type nt
+                        ON nt.id = n.notification_type
+                WHERE user_id = :user AND notification_read = 0 
+                ORDER BY created_at DESC 
+                LIMIT 50");
         $statement->execute([$userId]);
 
         return $statement->fetchAll(PDO::FETCH_CLASS, Notification::class);

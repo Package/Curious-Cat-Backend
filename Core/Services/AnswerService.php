@@ -40,7 +40,7 @@ class AnswerService extends BaseService
             throw new UnauthorizedException("You do not have permission to post an answer to this question.");
         }
 
-        // Create the new question
+        // Create the new answer
         $statement = $this->db->prepare("INSERT INTO answers (question_id, label, created_at, user_id)
                                             VALUES(:question_id, :label, NOW(), :user_id)");
         $statement->bindParam(":question_id", $questionID, PDO::PARAM_INT);
@@ -52,7 +52,7 @@ class AnswerService extends BaseService
         if ($successfullyAnswered) {
             // Send a notification that the question has been answered
             $notificationService = new NotificationService;
-            $notificationService->create($question[0]->from_user, $user["username"], Notification::NOTIFICATION_ANSWERED_QUESTION);
+            $notificationService->create($question[0]->from_user, $user, Notification::NOTIFICATION_ANSWERED_QUESTION, $label, $this->db->lastInsertId());
         }
 
         return $successfullyAnswered;

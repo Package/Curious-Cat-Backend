@@ -22,7 +22,7 @@ class FollowService extends BaseService
 
             if ($statement->rowCount() > 0) {
                 $notificationService = new NotificationService;
-                $notificationService->create($followedUser, $followingUser["username"],Notification::NOTIFICATION_FOLLOWED_YOU);
+                $notificationService->create($followedUser, $followingUser,Notification::NOTIFICATION_FOLLOWED_YOU);
             }
         }
     }
