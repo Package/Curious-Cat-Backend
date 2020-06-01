@@ -28,12 +28,18 @@ class NotificationService extends BaseService
     /**
      * Marks the provided user's notifications as read.
      *
-     * @param $userId
+     * @param int $userId
+     * @param int $notification
+     * @throws OperationFailedException
      */
-    public function read(int $userId): void
+    public function read(int $userId, int $notification): void
     {
-        $statement = $this->db->prepare("UPDATE notifications SET notification_read = 1 WHERE user_id = :user");
-        $statement->execute([$userId]);
+        if (!$notification || $notification <= 0) {
+            throw new OperationFailedException("Please provide notification ID in request.");
+        }
+
+        $statement = $this->db->prepare("UPDATE notifications SET notification_read = 1 WHERE user_id = :user AND id = :notification");
+        $statement->execute([$userId, $notification]);
     }
 
     /**
