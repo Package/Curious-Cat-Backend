@@ -11,18 +11,20 @@ class NotificationService extends BaseService
      * @param array $fromUser
      * @param int $messageType
      * @param string|null $context
+     * @param int|null $contextId
+     * @param int $hidden
      * @throws OperationFailedException
      */
-    public function create(int $toUser, array $fromUser, int $messageType, string $context = null, int $contextId = null): void
+    public function create(int $toUser, array $fromUser, int $messageType, string $context = null, int $contextId = null, int $hidden = 0): void
     {
         $formattedMessage = $this->formatNotification($fromUser["username"], $messageType);
         if (!$formattedMessage) {
             throw new OperationFailedException("Could not send notification.");
         }
 
-        $statement = $this->db->prepare("INSERT INTO notifications(label, notification_read, user_id, created_at, from_user, notification_type, context, context_id) 
-                                             VALUES(:label, 0, :user, NOW(), :from_user, :notification_type, :context, :context_id)");
-        $statement->execute([$formattedMessage, $toUser, $fromUser["id"], $messageType, $context, $contextId]);
+        $statement = $this->db->prepare("INSERT INTO notifications(label, notification_read, user_id, created_at, from_user, notification_type, context, context_id, hidden) 
+                                             VALUES(:label, 0, :user, NOW(), :from_user, :notification_type, :context, :context_id, :hidden)");
+        $statement->execute([$formattedMessage, $toUser, $fromUser["id"], $messageType, $context, $contextId, $hidden]);
     }
 
     /**
@@ -51,9 +53,20 @@ class NotificationService extends BaseService
     public function get(int $userId)
     {
         $statement = $this->db->prepare("
-                SELECT n.*, 
+                SELECT 
+                       
+                       n.id,
+                       n.label,
+                       n.notification_read,
+                       n.user_id,
+                       n.created_at,
+                       CASE WHEN n.hidden = 1 THEN NULL ELSE n.from_user END AS from_user,
+                       n.notification_type,
                        nt.type AS notification_type_string,
-                       u.username AS from_username
+                       n.context,
+                       n.context_id,
+                       n.hidden,
+                       CASE WHEN n.hidden = 1 THEN 'Anonymous' ELSE u.username END AS from_username
                 FROM notifications n
                     INNER JOIN users u
                         ON u.id = n.from_user

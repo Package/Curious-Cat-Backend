@@ -87,7 +87,7 @@ class QuestionService extends BaseService
         $successfullyCreated = $statement->rowCount() > 0;
         if ($successfullyCreated) {
             $notificationService = new NotificationService;
-            $notificationService->create($targetUser, $user,Notification::NOTIFICATION_ASKED_QUESTION, $label, $this->db->lastInsertId());
+            $notificationService->create($targetUser, $user,Notification::NOTIFICATION_ASKED_QUESTION, $label, $this->db->lastInsertId(), $nameHidden);
         }
 
         return $successfullyCreated;

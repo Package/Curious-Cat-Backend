@@ -9,7 +9,7 @@ $password = $body['password'] ?? false;
 $confirmPassword = $body['confirm_password'] ?? false;
 
 if (!$username || !$emailAddress || !$password || !$confirmPassword) {
-    exitWithMessage("Provide username, email_address, password and confirm_password in POST request.");
+    exitWithMessage("Please enter all fields.");
 }
 
 $userService = new UserService;

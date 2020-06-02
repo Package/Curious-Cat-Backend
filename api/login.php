@@ -5,7 +5,7 @@ $body = json_decode(file_get_contents('php://input'), true);
 $userOrEmail = $body['userOrEmail'] ?? false;
 $password = $body['password'] ?? false;
 if (!$userOrEmail || !$password) {
-    exitWithMessage("Provide userOrEmail and password in POST request");
+    exitWithMessage("Please enter username and password.");
 }
 
 $userService = new UserService;

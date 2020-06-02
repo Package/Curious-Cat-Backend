@@ -17,7 +17,7 @@ class StatsService extends BaseService
                    u.created_at AS counter
             
             FROM users u 
-            ORDER BY u.created_at LIMIT 5");
+            ORDER BY u.created_at DESC LIMIT 5");
 
         $statement->execute();
         return $statement->fetchAll(PDO::FETCH_OBJ);
