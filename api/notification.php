@@ -2,7 +2,7 @@
 require_once './init.php';
 
 $auth = new Authentication;
-$user = $auth->authenticationNeeded()->getCurrentUser();
+$user = $auth->required()->user();
 
 $id = $_GET['id'] ?? false;
 

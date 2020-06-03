@@ -9,7 +9,7 @@ $targetUser = $body['target_user'] ?? false;
 $nameHidden = $body['name_hidden'] ?? false;
 
 $auth = new Authentication;
-$user = $auth->authenticationNeeded()->getCurrentUser();
+$user = $auth->required()->user();
 
 $questionService = new QuestionService;
 

@@ -2,7 +2,7 @@
 require_once './init.php';
 
 $auth = new Authentication;
-$user = $auth->authenticationNeeded()->getCurrentUser();
+$user = $auth->required()->user();
 
 $timelineService = new TimelineService;
 echo json_encode($timelineService->timeline($user));

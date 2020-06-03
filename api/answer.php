@@ -9,7 +9,7 @@ $label = $body['label'] ?? false;
 $postQuestion = $body['question_id'] ?? false;
 
 $auth = new Authentication;
-$user = $auth->authenticationNeeded()->getCurrentUser();
+$user = $auth->required()->user();
 
 $answerService = new AnswerService;
 

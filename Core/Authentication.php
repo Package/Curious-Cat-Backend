@@ -12,7 +12,7 @@ final class Authentication
      * @param bool $authenticationNeeded
      * @return $this
      */
-    public function authenticationNeeded(bool $authenticationNeeded = true) : Authentication
+    public function required(bool $authenticationNeeded = true) : Authentication
     {
         $this->requireLogin = $authenticationNeeded;
         return $this;
@@ -23,7 +23,7 @@ final class Authentication
      * If authentication is required, an unauthorised user will trigger an UnauthorizedException.
      * @return array|bool
      */
-    public function getCurrentUser()
+    public function user()
     {
         $maybeToken = $this->parseTokenHeader();
         if ($this->requireLogin && !$maybeToken) {
@@ -76,8 +76,7 @@ final class Authentication
     {
         $data = [
             'id' => $user->id,
-            'username' => $user->username,
-            'email_address' => $user->email_address
+            'username' => $user->username
         ];
 
         $jwt = JWT::encode(
