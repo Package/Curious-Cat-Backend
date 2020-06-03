@@ -84,7 +84,7 @@ final class Authentication
             $data, $_ENV['jwt_secret'], 'HS512'
         );
 
-        return json_encode(['message' => 'Login Successful.', 'authorization_token' => $jwt]);
+        return json_encode(['message' => 'Login Successful.', 'authorization_token' => $jwt, 'username' => $user->username ]);
     }
 
     /**
