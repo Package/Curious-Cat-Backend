@@ -52,29 +52,7 @@ class NotificationService extends BaseService
      */
     public function get(int $userId)
     {
-        $statement = $this->db->prepare("
-                SELECT 
-                       
-                       n.id,
-                       n.label,
-                       n.notification_read,
-                       n.user_id,
-                       n.created_at,
-                       CASE WHEN n.hidden = 1 THEN NULL ELSE n.from_user END AS from_user,
-                       n.notification_type,
-                       nt.type AS notification_type_string,
-                       n.context,
-                       n.context_id,
-                       n.hidden,
-                       CASE WHEN n.hidden = 1 THEN 'Anonymous' ELSE u.username END AS from_username
-                FROM notifications n
-                    INNER JOIN users u
-                        ON u.id = n.from_user
-                    INNER JOIN notification_type nt
-                        ON nt.id = n.notification_type
-                WHERE user_id = :user AND notification_read = 0 
-                ORDER BY created_at DESC 
-                LIMIT 50");
+        $statement = $this->db->prepare("SELECT * FROM fn_notification_get(:user_id)");
         $statement->execute([$userId]);
 
         return $statement->fetchAll(PDO::FETCH_CLASS, Notification::class);

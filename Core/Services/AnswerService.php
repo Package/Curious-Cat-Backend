@@ -11,8 +11,7 @@ class AnswerService extends BaseService
     public function forQuestion(int $question)
     {
         $statement = $this->db->prepare("SELECT * FROM answers WHERE question_id = :question");
-        $statement->bindValue(':question', $question, PDO::PARAM_INT);
-        $statement->execute();
+        $statement->execute([$question]);
 
         return $statement->fetchAll(PDO::FETCH_CLASS, Answer::class);
     }
@@ -41,12 +40,8 @@ class AnswerService extends BaseService
         }
 
         // Create the new answer
-        $statement = $this->db->prepare("INSERT INTO answers (question_id, label, created_at, user_id)
-                                            VALUES(:question_id, :label, NOW(), :user_id)");
-        $statement->bindParam(":question_id", $questionID, PDO::PARAM_INT);
-        $statement->bindParam(":label", $label, PDO::PARAM_STR);
-        $statement->bindParam(":user_id", $user['id'], PDO::PARAM_INT);
-        $statement->execute();
+        $statement = $this->db->prepare("INSERT INTO answers (question_id, label, created_at, user_id) VALUES(:question_id, :label, NOW(), :user_id)");
+        $statement->execute([$questionID, $label, $user["id"]]);
 
         $successfullyAnswered = $statement->rowCount() > 0;
         if ($successfullyAnswered) {
@@ -74,9 +69,7 @@ class AnswerService extends BaseService
         }
 
         $statement = $this->db->prepare("DELETE FROM answers WHERE id = :answer_id AND user_id = :user_id");
-        $statement->bindParam(":answer_id", $answerID, PDO::PARAM_INT);
-        $statement->bindParam(":user_id", $user['id'], PDO::PARAM_INT);
-        $statement->execute();
+        $statement->execute([$answerID, $user["id"]]);
 
         // Only the user who created it can delete
         if ($statement->rowCount() < 1) {

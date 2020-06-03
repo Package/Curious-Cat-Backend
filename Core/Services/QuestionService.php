@@ -10,25 +10,8 @@ class QuestionService extends BaseService
      * @return array
      */
     public function get(int $questionNumber = 0) {
-        $statement = $this->db->prepare("
-            SELECT 
-                   q.id,
-                   q.created_at,
-                   q.name_hidden,
-                   q.label,
-                   q.target_user,
-                   CASE WHEN q.name_hidden = 1 THEN NULL ELSE u.username END AS from_username,
-                   CASE WHEN q.name_hidden = 1 THEN NULL ELSE u.id END AS from_user
-                    
-            FROM questions q
-            
-                INNER JOIN users u 
-                    ON u.id = q.from_user
-            
-            WHERE q.id = :question_number OR :question_number = 0
-        ");
-        $statement->bindParam(":question_number", $questionNumber, PDO::PARAM_INT);
-        $statement->execute();
+        $statement = $this->db->prepare("SELECT * FROM fn_question_get(:question_id)");
+        $statement->execute([$questionNumber]);
 
         return $statement->fetchAll(PDO::FETCH_CLASS, Question::class);
     }
@@ -48,9 +31,7 @@ class QuestionService extends BaseService
         }
 
         $statement = $this->db->prepare("DELETE FROM questions WHERE id = :question_number AND from_user = :user_id");
-        $statement->bindParam(":question_number", $id, PDO::PARAM_INT);
-        $statement->bindParam(":user_id", $user['id'], PDO::PARAM_INT);
-        $statement->execute();
+        $statement->execute([$id, $user["id"]]);
 
         $wasDeleted = $statement->rowCount() > 0;
         if (!$wasDeleted) {
@@ -76,13 +57,8 @@ class QuestionService extends BaseService
             throw new OperationFailedException("An error occurred. Please login and try again.");
         }
 
-        $statement = $this->db->prepare("INSERT INTO questions (label, target_user, from_user, created_at, name_hidden)
-                                            VALUES (:label, :target_user, :from_user, NOW(), :name_hidden)");
-        $statement->bindParam(":label", $label, PDO::PARAM_STR);
-        $statement->bindParam(":target_user", $targetUser, PDO::PARAM_INT);
-        $statement->bindParam(":from_user", $user['id'], PDO::PARAM_INT);
-        $statement->bindParam(":name_hidden", $nameHidden, PDO::PARAM_INT);
-        $statement->execute();
+        $statement = $this->db->prepare("INSERT INTO questions (label, target_user, from_user, created_at, name_hidden) VALUES (:label, :target_user, :from_user, NOW(), :name_hidden)");
+        $statement->execute([$label, $targetUser, $user["id"], $nameHidden]);
 
         $successfullyCreated = $statement->rowCount() > 0;
         if ($successfullyCreated) {
