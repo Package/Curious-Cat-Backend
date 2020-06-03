@@ -6,7 +6,7 @@ $user = $auth->required()->user();
 
 $query = $_GET['query'] ?? false;
 if (!$query || strlen($query) == 0) {
-    exitWithMessage('No query provided.', 400);
+    Response::error('No query provided.', 400);
 }
 
 $searchResults = new stdClass;

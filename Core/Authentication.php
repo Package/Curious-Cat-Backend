@@ -27,12 +27,12 @@ final class Authentication
     {
         $maybeToken = $this->parseTokenHeader();
         if ($this->requireLogin && !$maybeToken) {
-            exitWithMessage("Unauthorized: You need to login to access this page.", 401);
+            Response::error("Unauthorized: You need to login to access this page.", 401);
         }
 
         $maybeUser = self::validateToken($maybeToken);
         if ($this->requireLogin && !$maybeUser) {
-            exitWithMessage("Unauthorized: You do not have permission to access this.", 401);
+            Response::error("Unauthorized: You do not have permission to access this.", 401);
         }
 
         return $maybeUser;
@@ -99,8 +99,7 @@ final class Authentication
 
             return [
                 'id' => $payload->id,
-                'username' => $payload->username,
-                'email_address' => $payload->email_address
+                'username' => $payload->username
             ];
         } catch (Exception $e) {}
 

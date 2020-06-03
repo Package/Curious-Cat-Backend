@@ -14,7 +14,7 @@ try {
     echo json_encode($response);
 
 } catch (Exception $e) {
-    exitWithMessage($e->getMessage(), 500);
+    Response::error($e->getMessage());
 }
 
 

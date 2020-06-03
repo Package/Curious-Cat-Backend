@@ -11,11 +11,11 @@ try {
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'PUT':
             $notificationService->read($user['id'], $id);
-            exitWithMessage("Notifications Read.", 200);
+            Response::success("Notifications Read.");
             break;
         default:
             echo json_encode($notificationService->get($user['id']));
     }
 } catch (Exception $e) {
-    exitWithMessage($e->getMessage(), 500);
+    Response::error($e->getMessage());
 }

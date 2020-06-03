@@ -9,12 +9,12 @@ $password = $body['password'] ?? false;
 $confirmPassword = $body['confirm_password'] ?? false;
 
 if (!$username || !$emailAddress || !$password || !$confirmPassword) {
-    exitWithMessage("Please enter all fields.");
+    Response::error("Please enter all fields.", 400);
 }
 
 $userService = new UserService;
 try {
     echo $userService->register($username, $emailAddress, $password, $confirmPassword);
 } catch (InvalidLoginException|InvalidRegistrationException $e) {
-    exitWithMessage($e->getMessage(), 400);
+    Response::error($e->getMessage(), 400);
 }

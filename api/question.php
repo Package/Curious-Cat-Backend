@@ -17,17 +17,17 @@ try {
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'POST':
             $questionService->create($label, $targetUser, $user, $nameHidden);
-            exitWithMessage('Question Created.', 201);
+            Response::success('Question Created.', 201);
             break;
         case 'DELETE':
             $questionService->delete($id, $user);
-            exitWithMessage('Question Deleted.', 200);
+            Response::success('Question Deleted.');
             break;
         default:
             echo json_encode($questionService->get($id));
     }
 } catch (Exception $e) {
-    exitWithMessage($e->getMessage(), 500);
+    Response::error($e->getMessage());
 }
 
 

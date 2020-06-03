@@ -17,18 +17,18 @@ try {
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'POST':
             $answerService->create($postQuestion, $user, $label);
-            exitWithMessage("Answer Created.", 201);
+            Response::success("Answer Created.", 201);
             break;
         case 'DELETE':
             $answerService->delete($answerID, $user);
-            exitWithMessage("Answer Deleted.", 200);
+            Response::success("Answer Deleted.");
             break;
         default:
             $answers = $answerService->forQuestion($getQuestion);
             echo json_encode($answers);
     }
 } catch (Exception $e) {
-    exitWithMessage($e->getMessage(), 500);
+    Response::error($e->getMessage());
 }
 
 

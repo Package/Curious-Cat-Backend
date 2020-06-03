@@ -7,7 +7,7 @@ $user = $auth->required()->user();
 $id = $_GET['id'] ?? $user['id'];
 $type = $_GET['type'] ?? 'following';
 if (!$id) {
-    exitWithMessage("No ID provided in request.", 401);
+    Response::error("No ID provided in request.", 401);
 }
 
 $followService = new FollowService;
@@ -16,15 +16,15 @@ try {
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'POST':
             $followService->follow($id, $user);
-            exitWithMessage("User Followed.", 201);
+            Response::success("User Followed.", 201);
             break;
         case 'DELETE':
             $followService->unfollow($id, $user);
-            exitWithMessage("User Unfollowed.", 200);
+            Response::success("User Unfollowed.");
             break;
         default:
             echo json_encode($followService->get($id, $type));
     }
 } catch (Exception $e) {
-    exitWithMessage($e->getMessage(), 500);
+    Response::error($e->getMessage());
 }

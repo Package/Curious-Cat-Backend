@@ -6,7 +6,7 @@ $user = $auth->required()->user();
 
 $profileID = $_GET['id'] ?? $user['id'];
 if (!$profileID) {
-    exitWithMessage('No Profile ID provided.', 400);
+    Response::error('No Profile ID provided.', 400);
 }
 
 $profileService = new ProfileService;
