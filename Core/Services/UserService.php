@@ -4,6 +4,8 @@
 class UserService extends BaseService
 {
     /**
+     * Attempts to register the user with the provided details.
+     *
      * @param string $username
      * @param string $emailAddress
      * @param string $plainPassword
@@ -83,27 +85,16 @@ class UserService extends BaseService
     }
 
     /**
-     * Updates details about a user. Validates data provided exactly as it does when registering.
+     * Allows a user to change their username or email address.
      *
      * @param array $user
      * @param string $username
      * @param string $emailAddress
-     * @param string $password
-     * @param string $confirmPassword
      * @return mixed
      * @throws InvalidRegistrationException
-     * @throws OperationFailedException
      */
-    public function update(array $user, string $username, string $emailAddress, string $password, string $confirmPassword)
+    public function updateDetails(array $user, string $username, string $emailAddress)
     {
-        if (!$this->comparePasswords($password, $confirmPassword)) {
-            throw new OperationFailedException("Password and confirm password do not match.");
-        }
-        if (!$this->checkPasswordComplexity($password)) {
-            throw new OperationFailedException("Password does not meet the minimum requirements (6 characters or more)");
-        }
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
         if (!$this->checkUniqueEmail($emailAddress, $user["id"])) {
             throw new InvalidRegistrationException("Email Address already in use. Please enter another and try again.");
         }
@@ -114,11 +105,35 @@ class UserService extends BaseService
 
         $statement = $this->db->prepare("
             UPDATE users 
-            SET username = COALESCE(:username, username), 
-                email_address = COALESCE(:email_address, email_address), 
-                password = COALESCE(:password, password) 
+            SET username = COALESCE(:username, username), email_address = COALESCE(:email_address, email_address)
             WHERE id = :userId");
-        $statement->execute([$username, $emailAddress, $hashedPassword, $user["id"]]);
+        $statement->execute([$username, $emailAddress, $user["id"]]);
+
+        return $this->get($user);
+    }
+
+
+    /**
+     * Allows a user to change their password.
+     *
+     * @param array $user
+     * @param string $password
+     * @param string $confirmPassword
+     * @return User
+     * @throws OperationFailedException
+     */
+    public function updatePassword(array $user, string $password, string $confirmPassword) : User
+    {
+        if (!$this->comparePasswords($password, $confirmPassword)) {
+            throw new OperationFailedException("Password and confirm password do not match.");
+        }
+        if (!$this->checkPasswordComplexity($password)) {
+            throw new OperationFailedException("Password does not meet the minimum requirements (6 characters or more)");
+        }
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        $statement = $this->db->prepare("UPDATE users SET password = COALESCE(:password, password) WHERE id = :userId");
+        $statement->execute([$hashedPassword, $user["id"]]);
 
         return $this->get($user);
     }
