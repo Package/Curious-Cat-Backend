@@ -85,6 +85,18 @@ class UserService extends BaseService
     }
 
     /**
+     * Sets the profile photo associated with this user.
+     *
+     * @param array $user
+     * @param string|null $path
+     */
+    public function setPhoto(array $user, $path) : void
+    {
+        $statement = $this->db->prepare("UPDATE users SET photo_file = :photoFile WHERE id = :id");
+        $statement->execute([$path, $user["id"]]);
+    }
+
+    /**
      * Allows a user to change their username or email address.
      *
      * @param array $user
