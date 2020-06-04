@@ -8,14 +8,6 @@ abstract class BaseService
      */
     protected $db;
 
-    protected static $questionService;
-    protected static $answerService;
-    protected static $profileService;
-    protected static $notificationService;
-    protected static $userService;
-    protected static $followService;
-    protected static $searchService;
-
     /**
      * BaseService constructor.
      */

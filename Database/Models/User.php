@@ -27,4 +27,9 @@ class User
      * @var string
      */
     public $password;
+
+    /**
+     * @var string
+     */
+    public $photo_file;
 }

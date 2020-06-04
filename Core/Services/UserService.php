@@ -14,20 +14,21 @@ class UserService extends BaseService
      */
     public function register(string $username, string $emailAddress, string $plainPassword, string $confirmPassword)
     {
-        if ($plainPassword !== $confirmPassword) {
+        if (!$this->comparePasswords($plainPassword, $confirmPassword)) {
             throw new InvalidRegistrationException("Password and confirm password do not match.");
         }
+        if (!$this->checkPasswordComplexity($plainPassword)) {
+            throw new InvalidRegistrationException("Password does not meet the minimum requirements (6 characters or more)");
+        }
+        $hashedPassword = password_hash($plainPassword, PASSWORD_DEFAULT);
 
-        // Validate the username and email are not already in use.
-        $statement = $this->db->prepare("SELECT * FROM users WHERE username = :username OR email_address = :email_address LIMIT 1");
-        $statement->execute([$username, $emailAddress]);
-        $maybeUser = $statement->fetch(PDO::FETCH_ASSOC);
-        if ($maybeUser != null) {
-            $inUseMessage = $maybeUser['username'] === $username ? 'Username' : 'Email Address';
-            throw new InvalidRegistrationException("{$inUseMessage} already in use. Please enter another and try again.");
+        if (!$this->checkUniqueEmail($emailAddress)) {
+            throw new InvalidRegistrationException("Email Address already in use. Please enter another and try again.");
         }
 
-        $hashedPassword = password_hash($plainPassword, PASSWORD_DEFAULT);
+        if (!$this->checkUniqueUsername($username)) {
+            throw new InvalidRegistrationException("Username already in use. Please enter another and try again.");
+        }
 
         // Register the new user.
         $statement = $this->db->prepare("INSERT INTO users (username, email_address, password, created_at) VALUES(:username, :email_address, :password, NOW())");
@@ -64,5 +65,121 @@ class UserService extends BaseService
 
         // If we get down here then the username & password match so login the user.
         return Authentication::generateWebToken($maybeUser);
+    }
+
+    /**
+     * Gets details about a user. Does not include the password.
+     *
+     * @param array $user
+     * @return mixed
+     */
+    public function get(array $user)
+    {
+        $statement = $this->db->prepare("SELECT id, username, email_address, created_at, photo_file FROM users WHERE id = :user LIMIT 1");
+        $statement->setFetchMode(PDO::FETCH_CLASS, User::class);
+        $statement->execute([$user["id"]]);
+
+        return $statement->fetch();
+    }
+
+    /**
+     * Updates details about a user. Validates data provided exactly as it does when registering.
+     *
+     * @param array $user
+     * @param string $username
+     * @param string $emailAddress
+     * @param string $password
+     * @param string $confirmPassword
+     * @return mixed
+     * @throws InvalidRegistrationException
+     * @throws OperationFailedException
+     */
+    public function update(array $user, string $username, string $emailAddress, string $password, string $confirmPassword)
+    {
+        if (!$this->comparePasswords($password, $confirmPassword)) {
+            throw new OperationFailedException("Password and confirm password do not match.");
+        }
+        if (!$this->checkPasswordComplexity($password)) {
+            throw new OperationFailedException("Password does not meet the minimum requirements (6 characters or more)");
+        }
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        if (!$this->checkUniqueEmail($emailAddress, $user["id"])) {
+            throw new InvalidRegistrationException("Email Address already in use. Please enter another and try again.");
+        }
+
+        if (!$this->checkUniqueUsername($username, $user["id"])) {
+            throw new InvalidRegistrationException("Username already in use. Please enter another and try again.");
+        }
+
+        $statement = $this->db->prepare("
+            UPDATE users 
+            SET username = COALESCE(:username, username), 
+                email_address = COALESCE(:email_address, email_address), 
+                password = COALESCE(:password, password) 
+            WHERE id = :userId");
+        $statement->execute([$username, $emailAddress, $hashedPassword, $user["id"]]);
+
+        return $this->get($user);
+    }
+
+    /**
+     * Validates that the username provided is not already in use.
+     *
+     * @param string $username
+     * @param int $excludeUser
+     * @return bool
+     */
+    private function checkUniqueUsername(string $username, int $excludeUser = 0) : bool
+    {
+        $statement = $this->db->prepare("SELECT * FROM users WHERE username = :username AND id <> :excludeUser LIMIT 1");
+        $statement->execute([$username, $excludeUser]);
+        $maybeUser = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return $maybeUser == null;
+    }
+
+    /**
+     * Validates that the email address provided is not already in use.
+     *
+     * @param string $emailAddress
+     * @param int $excludeUser
+     * @return bool
+     */
+    private function checkUniqueEmail(string $emailAddress, int $excludeUser = 0) : bool
+    {
+        $statement = $this->db->prepare("SELECT * FROM users WHERE email_address = :email_address AND id <> :excludeUser LIMIT 1");
+        $statement->execute([$emailAddress, $excludeUser]);
+        $maybeUser = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return $maybeUser == null;
+    }
+
+    /**
+     * Checks whether the password provided meets the minimum requirements.
+     *
+     * @param string $password
+     * @return bool
+     */
+    private function checkPasswordComplexity(string $password) : bool
+    {
+        return strlen($password) >= 6;
+    }
+
+    /**
+     * Checks whether two passwords are identical. Used when registering or updating user details to ensure
+     * the user has not made a typo when setting or changing their password.
+     *
+     * @param $password
+     * @param $confirmPassword
+     * @return bool
+     */
+    private function comparePasswords(string $password, string $confirmPassword) : bool
+    {
+        if (!$password || !$confirmPassword) {
+            return false;
+        }
+
+        return $password === $confirmPassword;
     }
 }
