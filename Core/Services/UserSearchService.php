@@ -12,7 +12,7 @@ class UserSearchService extends SearchService
      */
     public function search(string $query)
     {
-        $statement = $this->db->prepare("SELECT u.id, u.username, u.created_at FROM users u WHERE LOWER(username) LIKE :query LIMIT :limit");
+        $statement = $this->db->prepare("SELECT u.id, u.username, u.photo_file, u.created_at FROM users u WHERE LOWER(username) LIKE :query LIMIT :limit");
         $statement->execute(['%' . strtolower($query) . '%', self::SEARCH_LIMIT]);
 
         return $statement->fetchAll(PDO::FETCH_OBJ);
