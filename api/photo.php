@@ -31,7 +31,7 @@ function handleProfileUpload(array $user) : void {
     $fileService->setUploadFilenames(["profile.jpg"]);
 
     if (!$fileService->isFileValid()) {
-        Response::error("No photo selected.", 400);
+        Response::error("No photo selected, or it is not in the correct format (jpg, jpeg, png, gif).", 400);
     }
 
     if (!$fileService->upload()) {
